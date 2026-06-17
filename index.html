@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOMNIUM — a dream in many doors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Italiana&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Fragment+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="dream"></canvas>
+<div id="vignette"></div>
+<div id="grain"></div>
+
+<!-- ░ TITLE ░ -->
+<section class="screen" id="screen-title">
+  <div class="title-stack">
+    <p class="overline">you are already asleep</p>
+    <h1 class="game-title">SOMNIUM</h1>
+    <p class="subtitle">a dream in many doors</p>
+    <div class="title-actions">
+      <button class="btn btn-primary" id="btn-begin">begin to drift</button>
+      <button class="btn hidden" id="btn-continue">return to the dream</button>
+    </div>
+    <p class="title-hint">the puzzles you solve decide the story you are told</p>
+  </div>
+</section>
+
+<!-- ░ STORY ░ -->
+<section class="screen" id="screen-story">
+  <div class="story-frame">
+    <p class="depth-label" id="story-depth"></p>
+    <div class="prose" id="story-prose"></div>
+    <button class="btn btn-primary" id="btn-story-continue">continue</button>
+  </div>
+</section>
+
+<!-- ░ DOORS ░ -->
+<section class="screen" id="screen-doors">
+  <div class="doors-frame">
+    <p class="depth-label" id="doors-depth"></p>
+    <h2 class="doors-title" id="doors-title"></h2>
+    <div class="door-row" id="door-row"></div>
+    <p class="doors-note">solve a door's riddle and the dream closes the others behind you</p>
+  </div>
+</section>
+
+<!-- ░ PUZZLE HUD ░ -->
+<section class="screen" id="screen-puzzle">
+  <div class="hud-top">
+    <p class="depth-label" id="puzzle-kicker"></p>
+    <h2 class="puzzle-title" id="puzzle-title"></h2>
+    <p class="puzzle-objective" id="puzzle-objective"></p>
+    <p class="puzzle-hint hidden" id="puzzle-hint"></p>
+  </div>
+  <div class="puzzle-panel hidden" id="puzzle-panel"></div>
+  <div class="hud-bottom">
+    <div class="hud-controls" id="puzzle-controls"></div>
+  </div>
+  <div class="dpad hidden" id="dpad">
+    <button data-dir="up" aria-label="up">▲</button>
+    <button data-dir="left" aria-label="left">◀</button>
+    <button data-dir="down" aria-label="down">▼</button>
+    <button data-dir="right" aria-label="right">▶</button>
+  </div>
+</section>
+
+<!-- ░ ENDING ░ -->
+<section class="screen" id="screen-ending">
+  <div class="story-frame">
+    <p class="depth-label">you begin to surface</p>
+    <h2 class="ending-title" id="ending-title"></h2>
+    <div class="prose" id="ending-prose"></div>
+    <p class="ending-stats" id="ending-stats"></p>
+    <button class="btn btn-primary" id="btn-wake">dream again</button>
+  </div>
+</section>
+
+<div id="veil"><p id="veil-text"></p></div>
+<button id="btn-mute" aria-label="toggle sound">♪</button>
+
+<script src="js/sound.js"></script>
+<script src="js/iso.js"></script>
+<script src="js/puzzles.js"></script>
+<script src="js/story.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
