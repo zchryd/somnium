@@ -89,7 +89,9 @@ body {
   letter-spacing: .34em;
   text-transform: uppercase;
   color: var(--fog);
-  background: transparent;
+  background: rgba(8,11,18,.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(147,160,192,.28);
   padding: .95em 2.2em .85em 2.45em;
   cursor: pointer;
@@ -105,7 +107,11 @@ body {
 
 /* ── title ─────────────────────────────────── */
 
-.title-stack { text-align: center; }
+.title-stack {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  background: radial-gradient(ellipse 80% 70% at 50% 50%, rgba(5,7,13,.78), rgba(5,7,13,.35) 55%, transparent 80%);
+}
 
 .title-stack .overline {
   animation: rise-blur 2.2s .2s cubic-bezier(.2,.7,.2,1) both;
@@ -266,32 +272,39 @@ body {
 
 .hud-top {
   position: absolute; top: 0; left: 0; right: 0;
-  padding: 2.2rem 2rem 0;
+  padding: clamp(1.1rem, 3.5vw, 2.2rem) clamp(.8rem, 4vw, 2rem) 0;
   text-align: center;
   pointer-events: none;
+}
+#puzzle-kicker {
+  font-size: clamp(.56rem, 2.2vw, .68rem);
+  letter-spacing: clamp(.16em, 1.2vw, .42em);
 }
 
 .puzzle-title {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(1.6rem, 3.4vw, 2.3rem);
-  letter-spacing: .1em;
-  margin-top: .45em;
+  font-size: clamp(1.45rem, 6vw, 2.3rem);
+  line-height: 1.15;
+  letter-spacing: .08em;
+  margin-top: .4em;
 }
 
 .puzzle-objective {
   font-style: italic;
   color: var(--fog);
-  margin-top: .4em;
-  font-size: 1.05rem;
+  margin-top: .45em;
+  font-size: clamp(.92rem, 3vw, 1.05rem);
+  line-height: 1.4;
 }
 
 .puzzle-hint {
-  margin: .9em auto 0;
+  margin: .7em auto 0;
   max-width: 52ch;
   color: var(--gold);
   font-style: italic;
-  font-size: 1rem;
+  font-size: clamp(.88rem, 2.8vw, 1rem);
+  line-height: 1.4;
   animation: rise-blur 1s both;
 }
 
@@ -338,9 +351,14 @@ body {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(147,160,192,.2);
-  padding: 2.2rem 2.4rem 2rem;
+  padding: clamp(1.2rem, 4vw, 2.2rem) clamp(1rem, 4vw, 2.4rem) clamp(1.1rem, 3.5vw, 2rem);
   text-align: center;
-  animation: rise-blur 1.2s .3s both cubic-bezier(.2,.7,.2,1);
+  /* fade/blur only — must NOT animate transform or it overrides the centering translate */
+  animation: panel-fade 1.2s .3s both cubic-bezier(.2,.7,.2,1);
+}
+@keyframes panel-fade {
+  from { opacity: 0; filter: blur(10px); }
+  to   { opacity: 1; filter: blur(0); }
 }
 .puzzle-panel.shake { animation: shake .5s; }
 @keyframes shake {
@@ -353,10 +371,10 @@ body {
 
 .panel-riddle {
   font-style: italic;
-  font-size: 1.18rem;
-  line-height: 1.8;
+  font-size: clamp(1rem, 3.4vw, 1.18rem);
+  line-height: 1.7;
   color: var(--moon);
-  margin-bottom: 1.6rem;
+  margin-bottom: 1.4rem;
 }
 .panel-clue-note {
   font-family: var(--font-mono);
@@ -375,10 +393,10 @@ body {
   list-style: none;
 }
 .clue-list li {
-  font-size: 1.05rem;
+  font-size: clamp(.92rem, 3vw, 1.05rem);
   font-style: italic;
   color: var(--fog);
-  padding: .34em 0 .34em 1.4em;
+  padding: .3em 0 .3em 1.4em;
   position: relative;
 }
 .clue-list li::before {
@@ -389,12 +407,13 @@ body {
   font-style: normal;
 }
 
-.slot-row, .chip-row { display: flex; gap: .65rem; justify-content: center; }
-.slot-row { margin-bottom: 1.4rem; }
+.slot-row, .chip-row { display: flex; gap: clamp(.32rem, 1.4vw, .65rem); justify-content: center; }
+.slot-row { margin-bottom: 1.4rem; flex-wrap: wrap; }
 .chip-row { flex-wrap: wrap; margin-bottom: 1.6rem; }
 
 .slot, .chip {
-  width: 60px; height: 60px;
+  width: clamp(42px, 12vw, 60px);
+  height: clamp(42px, 12vw, 60px);
   display: flex; align-items: center; justify-content: center;
   transition: all .3s;
 }
@@ -418,24 +437,26 @@ body {
   transform: translateY(-4px);
 }
 .chip.ghost { opacity: 0; pointer-events: none; }
-.chip svg, .slot svg { width: 34px; height: 34px; }
+.chip svg, .slot svg { width: 58%; height: 58%; }
 
 /* cipher: tiles + answer */
 .cipher-text {
   font-family: var(--font-mono);
-  font-size: 1.7rem;
-  letter-spacing: .42em;
+  font-size: clamp(1.2rem, 6vw, 1.7rem);
+  letter-spacing: clamp(.18em, 1.4vw, .42em);
   color: var(--teal);
-  margin: 0 0 1.5rem .42em;
+  margin: 0 0 1.5rem .3em;
   text-shadow: 0 0 22px rgba(143,216,205,.35);
+  word-break: break-all;
 }
-.tile-row, .answer-row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+.tile-row, .answer-row { display: flex; gap: clamp(.28rem, 1.2vw, .5rem); justify-content: center; flex-wrap: wrap; }
 .answer-row { margin-bottom: 1.5rem; }
 .tile, .answer-cell {
-  width: 48px; height: 56px;
+  width: clamp(34px, 9.5vw, 48px);
+  height: clamp(40px, 11vw, 56px);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-mono);
-  font-size: 1.4rem;
+  font-size: clamp(1.05rem, 3.6vw, 1.4rem);
 }
 .answer-cell {
   border-bottom: 2px solid rgba(147,160,192,.4);
@@ -531,9 +552,34 @@ body {
 #btn-mute.muted { color: var(--dim); text-decoration: line-through; }
 
 /* small screens */
-@media (max-width: 640px) {
-  .door-row { flex-direction: column; align-items: center; }
-  .door-card { width: min(320px, 86vw); padding: 1.4rem; }
-  .dpad { right: 50%; transform: translateX(50%); bottom: 5.4rem; }
-  .hud-controls { flex-wrap: wrap; justify-content: center; }
+@media (max-width: 720px) {
+  .doors-frame { padding: .5rem; }
+  .door-row { flex-direction: column; align-items: center; gap: .8rem; }
+  .door-card { width: min(360px, 90vw); padding: 1.2rem 1.3rem; }
+  .door-sigil { width: 42px; height: 42px; margin-bottom: .8rem; }
+  .door-name { font-size: 1.06rem; margin-bottom: .55rem; }
+  .doors-note { margin-top: 1.4rem; }
+
+  /* bottom controls wrap and shrink; d-pad sits centered just above them */
+  .hud-bottom { padding: 0 .7rem 1rem; }
+  .hud-controls { flex-wrap: wrap; justify-content: center; gap: .45rem; max-width: 100%; }
+  .hud-controls .btn { font-size: .55rem; padding: .7em 1em .6em 1.25em; }
+
+  .dpad { right: 50%; transform: translateX(50%); bottom: 5.8rem; gap: .35rem; }
+  .dpad button { width: 44px; height: 44px; }
+
+  /* panel uses nearly the full width and scrolls within the free area */
+  .puzzle-panel {
+    top: 52%;
+    width: calc(100vw - 1.2rem);
+    max-height: calc(100dvh - 11rem);
+  }
+}
+
+/* very short viewports (landscape phones): tighten further */
+@media (max-height: 520px) {
+  .hud-top { padding-top: .6rem; }
+  .puzzle-title { font-size: clamp(1.2rem, 5vw, 1.7rem); }
+  .puzzle-objective { display: none; }
+  .dpad button { width: 38px; height: 38px; }
 }

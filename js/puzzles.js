@@ -35,6 +35,9 @@ class SokobanScene {
     const c = Iso.proj((minx + maxx + 1) / 2, (miny + maxy + 1) / 2, 0);
     this.cx = c.x; this.cy = c.y;
     this.bounds = { minx, miny, maxx, maxy };
+    // every occupied cell, for fit-scaling (padTop: block tops + glyphs; padBot: keels)
+    const cells = [...this.floors, ...this.walls].map(k => k.split(',').map(Number));
+    this.contentHalf = Iso.gridHalfExtent(cells, this.cx, this.cy, 78, 58);
   }
 
   reset() {
@@ -237,6 +240,9 @@ class MemoryScene {
     }
     const c = Iso.proj((n * 1.5) / 2, (n * 1.5) / 2, 0);
     this.cx = c.x; this.cy = c.y;
+    // pedestal cells, padded for floating glyph-screens above and labels below
+    this.contentHalf = Iso.gridHalfExtent(
+      this.peds.map(p => [p.gx, p.gy]), this.cx, this.cy, 104, 150);
     this.screens = this.peds.map(p => {
       const s = Iso.proj(p.gx + 0.5, p.gy + 0.5, 1.0);
       return { x: s.x - this.cx, y: s.y - this.cy - 40 };

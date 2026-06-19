@@ -73,6 +73,25 @@ const Iso = (() => {
     return `rgb(${r},${g},${b})`;
   }
 
+  // half-extents (px, relative to center cx/cy) of a set of grid cells,
+  // with extra top/bottom padding for block height, glyphs, keels and labels
+  function gridHalfExtent(cells, cx, cy, padTop = 0, padBot = 0) {
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const [gx, gy] of cells) {
+      for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+        const p = proj(gx + dx, gy + dy, 0);
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+      }
+    }
+    return {
+      w: Math.max(maxX - cx, cx - minX),
+      h: Math.max(maxY - cy + padBot, cy - minY + padTop),
+    };
+  }
+
   // dream glyphs, drawn as billboards (face the camera)
   function drawGlyph(ctx, idx, x, y, size, color, lineWidth = 2.2) {
     ctx.save();
@@ -130,7 +149,7 @@ const Iso = (() => {
     ctx.restore();
   }
 
-  return { TW, TH, TZ, proj, poly, corners, drawTile, drawBlock, drawKeel, shade, drawGlyph };
+  return { TW, TH, TZ, proj, poly, corners, drawTile, drawBlock, drawKeel, shade, drawGlyph, gridHalfExtent };
 })();
 
 /* ───────────────────────── Stage ───────────────────────── */
@@ -140,6 +159,8 @@ const Stage = (() => {
   let scene = null;
   let stars = [], motes = [];
   let last = 0;
+  // current fit transform (updated each frame; reused for hit-testing)
+  let curScale = 1, anchorX = 0, anchorY = 0;
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -211,6 +232,27 @@ const Stage = (() => {
     ctx.globalAlpha = 1;
   }
 
+  // decide scale + anchor so a scene with a declared contentHalf always fits
+  // inside the area left free by the top HUD and bottom controls
+  function computeFit() {
+    const phone = W < 720;
+    const ch = scene && scene.contentHalf;
+    if (ch && ch.w > 0 && ch.h > 0) {
+      const top = phone ? 142 : 168;
+      const bot = phone ? 214 : 150;
+      const availW = W - (phone ? 22 : 90);
+      const availH = Math.max(150, H - top - bot);
+      curScale = Math.min(phone ? 1 : 1.12, availW / (2 * ch.w), availH / (2 * ch.h));
+      anchorX = W / 2 + (scene.camX || 0);
+      anchorY = top + availH / 2 + (scene.camY || 0);
+    } else {
+      // decorative background scenes shrink a touch on phones
+      curScale = ((scene && scene.bgScale) || 1) * (phone ? 0.66 : 1);
+      anchorX = W / 2 + (scene && scene.camX || 0);
+      anchorY = H * 0.56 + (scene && scene.camY || 0);
+    }
+  }
+
   function frame(ts) {
     const t = ts / 1000;
     const dt = Math.min(0.05, t - last || 0.016);
@@ -219,8 +261,10 @@ const Stage = (() => {
     drawBackground(t);
     if (scene) {
       if (scene.update) scene.update(dt, t);
+      computeFit();
       ctx.save();
-      ctx.translate(W / 2 + (scene.camX || 0), H * 0.56 + (scene.camY || 0));
+      ctx.translate(anchorX, anchorY);
+      ctx.scale(curScale, curScale);
       scene.draw(ctx, t);
       ctx.restore();
     }
@@ -231,8 +275,8 @@ const Stage = (() => {
   function localPoint(e) {
     const r = canvas.getBoundingClientRect();
     return {
-      x: e.clientX - r.left - (W / 2 + (scene && scene.camX || 0)),
-      y: e.clientY - r.top - (H * 0.56 + (scene && scene.camY || 0)),
+      x: (e.clientX - r.left - anchorX) / curScale,
+      y: (e.clientY - r.top - anchorY) / curScale,
     };
   }
 
@@ -264,6 +308,8 @@ class AmbientScene {
   // variant: 'title' shows the great door arch
   constructor(variant = 'title', palette = null) {
     this.variant = variant;
+    // on the title/ending screens, sink the islands so the text + buttons sit clear above them
+    if (variant === 'title') this.camY = 120;
     this.pal = palette || { top: '#2c3654', side: '#1b2238', dark: '#11162a', keel: '#0b0f1e' };
     this.islands = [
       { ox: 0, oy: 30, scale: 1, ph: 0,
